@@ -71,6 +71,18 @@ export class AuthService {
   }
 
   async refresh(userId: number, email: string) {
+    // Validate that the user still exists in the database
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+        email: email,
+      },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('Access denied');
+    }
+
     return this.signToken(userId, email);
   }
 
@@ -89,7 +101,7 @@ export class AuthService {
     });
     const refreshToken = await this.jwt.signAsync(payload, {
       expiresIn: '7d',
-      secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_REFRESH_SECRET,
     });
 
     return {

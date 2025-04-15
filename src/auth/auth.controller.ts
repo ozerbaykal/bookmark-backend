@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto, SignupDto } from './dto';
 import { GetUser } from './decorator';
-import { JwtGuard } from './guard';
+import { JwtRefreshGuard } from './guard/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -32,10 +32,11 @@ export class AuthController {
     return this.authService.logout();
   }
 
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   refresh(@GetUser('id') userId: number, @GetUser('email') email: string) {
+    console.log('Refresh token request received for user:', userId, email);
     return this.authService.refresh(userId, email);
   }
 }

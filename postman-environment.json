@@ -1,0 +1,19 @@
+{
+  "id": "d3e72b5a-5d1f-4bad-9c44-c5342882c1e5",
+  "name": "Bookmark API Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
