@@ -17,8 +17,9 @@ export class UserController {
   //@GetUser("id") ile kullanıcının id sini alıyoruz
   //@Body ile kullanıcının bilgilerini alıyoruz
   //EditUserDto ile body içindeki bilgileri kontrol ediyoruz
+  @UseGuards(AuthGuard('jwt'))
   @Patch('/update')
-  updateUser(@Body() body: EditUserDto, @GetUser('id') id: string) {
+  updateUser(@Body() body: EditUserDto, @GetUser('id') id: number) {
     return this.userService.updateUser(id, body);
   }
 }
