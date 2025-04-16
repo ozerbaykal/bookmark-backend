@@ -27,8 +27,9 @@ export class AuthService {
         },
       });
 
-      // Return the generated token
-      return this.signToken(user.id, user.email);
+      const accessToken = await this.signAccessToken(user.id, user.email);
+      const refreshToken = await this.signRefreshToken(user.id, user.email);
+      return { accessToken, refreshToken };
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -57,11 +58,9 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Invalid credentials');
 
     // Return the generated token
-    const tokens = await this.signToken(user.id, user.email);
-    return {
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
-    };
+    const accessToken = await this.signAccessToken(user.id, user.email);
+    const refreshToken = await this.signRefreshToken(user.id, user.email);
+    return { accessToken, refreshToken };
   }
 
   async logout() {
@@ -82,31 +81,38 @@ export class AuthService {
     if (!user) {
       throw new ForbiddenException('Access denied');
     }
+    const { accessToken } = await this.signAccessToken(userId, email);
 
-    return this.signToken(userId, email);
+    return { accessToken };
   }
 
-  async signToken(
+  async signAccessToken(
     userId: number,
     email: string,
-  ): Promise<{ access_token: string; refresh_token: string }> {
+  ): Promise<{ accessToken: string }> {
     const payload = {
       sub: userId,
       email,
     };
 
-    const token = await this.jwt.signAsync(payload, {
+    const accessToken = await this.jwt.signAsync(payload, {
       expiresIn: '15m',
       secret: process.env.JWT_SECRET,
     });
+
+    return { accessToken };
+    accessToken;
+  }
+  async signRefreshToken(
+    userId: number,
+    email: string,
+  ): Promise<{ refreshToken: string }> {
+    const payload = { sub: userId, email };
     const refreshToken = await this.jwt.signAsync(payload, {
       expiresIn: '7d',
       secret: process.env.JWT_REFRESH_SECRET,
     });
 
-    return {
-      access_token: token,
-      refresh_token: refreshToken,
-    };
+    return { refreshToken };
   }
 }
